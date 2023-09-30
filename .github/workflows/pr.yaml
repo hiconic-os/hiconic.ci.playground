@@ -34,7 +34,7 @@ jobs:
           mkdir inst
           mkdir repo
           mkdir upload
-          git clone https://${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git git-repo         
+          git clone -b ${{ github.head_ref }} https://${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git git-repo         
 
       # dr enrich-exchange-context - not found?
       - name: Analyze Codebase 
