@@ -1,4 +1,4 @@
-name: CI/CD Pipeline
+name: Manual
 
 on:
   workflow_dispatch:
@@ -6,7 +6,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    container: pgazdik/devrock:1.0
+    container: ghcr.io/hiconic-os/ci-devrock-sdk/main:latest
 
     env:
       GITHUB_REPO_URL: ${{ github.event.repository.clone_url }}
@@ -21,34 +21,54 @@ jobs:
       GIT_REPO: ${{ github.workspace }}/git-repo
 
       DEVROCK_PIPELINE_EXTERNAL_SEQUENCING: true
+      DEVROCK_PIPELINE_CANDIDATE_INSTALL: false
+
+      DEVROCK_PIPELINE_UPLOAD_USER: ${{ secrets.DEVROCK_PIPELINE_UPLOAD_USER }}
+      DEVROCK_PIPELINE_UPLOAD_PASSWORD: ${{ secrets.DEVROCK_PIPELINE_UPLOAD_PASSWORD }}
 
     defaults:
       run:
         working-directory: ${{ env.GIT_REPO }}
 
     steps:
-      - name: Git Checkout
+      - name: Initialize
         working-directory: ${{ github.workspace }}
         run: |
-          echo "${DEVROCK_REPOSITORY_CONFIGURATION}"
           mkdir inst
           mkdir repo
-          git clone https://${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git git-repo         
+          mkdir upload
+          full_repo_name=${{ github.repository }}
 
-      - name: Initialize Exchange 
-        run: dr initialize-exchange
 
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          path: "git-repo"
+    
+      # dr enrich-exchange-context - not found?
+      # TODO move the git config part to the "push" step
       - name: Analyze Codebase 
-        run: dr -Prange=. analyze-codebase
+        run: |
+          git config user.name "hiconic-ci"
+          git config user.email "actions@github.com"
+          dr initialize-exchange
+          dr analyze-codebase -Prange=.
+
+      - name: Save step-exchange Data
+        uses: actions/upload-artifact@v2
+        if: always()
+        with:
+          name: "step-exchange--${{ env.GITHUB_REPO_NAME }}--#${{ github.run_number }}"
+          path: ${{ github.workspace }}/git-repo/.step-exchange/
 
       - name: Build Artifacts 
-        run: dr -Prange=. build-artifacts
+        run: dr build-artifacts --stacktrace
 
       - name: Check Linking 
-        run: dr -Prange=. check-linking
-    
+        run: dr check-linking
+
       - name: Run Tests 
-        run: dr -Prange=. run-tests
+        run: dr run-tests
 
       # https://github.com/marketplace/actions/junit-report-action
       - name: Create Test Report
@@ -57,14 +77,21 @@ jobs:
         with:
           report_paths: "**/dist/testReports/*.xml"
           annotate_only: true
-          include_passed: true
+          include_passed: false
           detailed_summary: true
+
+      - name: Raise And Merge Artifacts
+        run: dr raise-and-merge-artifacts --stacktrace
+
+      - name: Publish
+        run: |
+          dr publish-artifacts --stacktrace
 
       # https://github.com/marketplace/actions/test-reporter
       # doesn't work when triggered manually - HttpError: Resource not accessible by integration
       #- name: Test Report Dorny
       #  uses: dorny/test-reporter@v1
-      #  if: always()    # run this step even if previous step failed
+      #  if : always()    # run this step even if previous step failed
       #  with:
       #    name: Java Tests            # Name of the check run which will be created
       #    working-directory: 'git-repo'
