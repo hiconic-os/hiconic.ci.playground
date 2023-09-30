@@ -1,7 +1,7 @@
-name: Pull Requests
+name: Manual - Custom Checkout
 
 on:
-  pull_request:
+  workflow_dispatch:
 
 jobs:
   build:
@@ -23,11 +23,6 @@ jobs:
       DEVROCK_PIPELINE_EXTERNAL_SEQUENCING: true
       DEVROCK_PIPELINE_CANDIDATE_INSTALL: false
 
-      DEVROCK_PIPELINE_UPLOAD_USER: ${{ github.actor }}
-      DEVROCK_PIPELINE_UPLOAD_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
-
-      PR_REF: refs/pull/${{ github.event.number }}/head
-
     defaults:
       run:
         working-directory: ${{ env.GIT_REPO }}
@@ -36,32 +31,30 @@ jobs:
       - name: INIT
         working-directory: ${{ github.workspace }}
         run: |
-          echo "${DEVROCK_REPOSITORY_CONFIGURATION}"
           mkdir inst
           mkdir repo
           mkdir upload
-          echo "git clone -b ${{ github.head_ref }} https://${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git git-repo"
+          git clone https://${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git git-repo
 
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ env.PR_REF }}
-          path: "git-repo"
-
-            # dr enrich-exchange-context - not found?
+      # dr enrich-exchange-context - not found?
       - name: Analyze Codebase 
         run: |
-          git fetch origin main
-          git branch -avv
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          echo "xx" > x.txt
+          git add .
+          git commit -m "x.txt"
+          git push
+
           dr initialize-exchange
-          dr analyze-codebase -PbaseBranch=${{ github.base_ref }}
+          dr analyze-codebase -Prange=.
 
       - name: Build Artifacts 
         run: dr build-artifacts
 
       - name: Check Linking 
         run: dr check-linking
-    
+
       - name: Run Tests 
         run: dr run-tests
 
@@ -75,14 +68,16 @@ jobs:
           include_passed: false
           detailed_summary: true
 
-      # dr raise-and-merge-artifacts - fails due to missing GitHub credentials
-      # git remote set-url origin https://{username}:${{ secrets.GITHUB_TOKEN }}@github.com/{username}/project.git
-      - name: Publish
-        run: |
-          git config user.name "GitHub Actions"
-          git config user.email "actions@github.com"
-          dr raise-and-merge-artifacts
-          dr publish-artifacts-suffis-to-fail
+      # https://github.com/marketplace/actions/test-reporter
+      # doesn't work when triggered manually - HttpError: Resource not accessible by integration
+      #- name: Test Report Dorny
+      #  uses: dorny/test-reporter@v1
+      #  if : always()    # run this step even if previous step failed
+      #  with:
+      #    name: Java Tests            # Name of the check run which will be created
+      #    working-directory: 'git-repo'
+      #    path: "**/dist/testReports/*.xml"    # Path to test results
+      #    reporter: java-junit        # Format of test results
 
   dump_contexts_to_log:
     runs-on: ubuntu-latest
