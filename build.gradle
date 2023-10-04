@@ -18,6 +18,8 @@ steps {
     
     step InitializeExchange.T
 
+    step EnrichExchangeContext.T
+
     step AnalyzeCodebase.T
 
     step BuildArtifacts.T, { equip { handler = { ant it.folderName, 'install', 'candidateInstall' } } }
