@@ -8,19 +8,19 @@
     cachable: false,
   },
 
-  uploadRepository: &upload-repo !com.braintribe.devrock.model.repository.MavenFileSystemRepository {
-    name: "upload",
-    rootPath: "${config.dir}/../upload",
-    cachable: false,
-  },
+#  uploadRepository: &upload-repo !com.braintribe.devrock.model.repository.MavenFileSystemRepository {
+#    name: "upload",
+#    rootPath: "${config.dir}/../upload",
+#    cachable: false,
+#  },
 
-  # uploadRepository: &upload-repo  !com.braintribe.devrock.model.repository.MavenHttpRepository {
-  #   name: "hiconic-dev", 
-  #   url: "https://maven.pkg.github.com/hiconic-os/maven-test", 
-  #   user: "${env.DEVROCK_PIPELINE_UPLOAD_USER}",
-  #   password: "${env.DEVROCK_PIPELINE_UPLOAD_PASSWORD}",
-  #   restSupport: none,
-  # },
+  uploadRepository: &upload-repo  !com.braintribe.devrock.model.repository.MavenHttpRepository {
+    name: "hiconic-dev", 
+    url: "https://maven.pkg.github.com/hiconic-os/maven-test", 
+    user: "${env.DEVROCK_PIPELINE_UPLOAD_USER}",
+    password: "${env.DEVROCK_PIPELINE_UPLOAD_PASSWORD}",
+    restSupport: none,
+  },
 
   repositories: [
     *install-repo,
