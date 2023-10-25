@@ -1,2 +1,2 @@
-echo "a" > pipeline-demo-library/aaa.txt
-echo "a" > parent/aaa.txt
+echo "$(date)" > pipeline-demo-library/aaa.txt
+echo "$(date)" > parent/aaa.txt
