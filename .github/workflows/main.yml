@@ -1,0 +1,17 @@
+name: Test Form
+
+on:
+  workflow_dispatch:
+    inputs:
+      text:
+        type: string
+        default: 'Hello World!'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Test Step
+        run: echo ${{ inputs.text }}
+    
+      
