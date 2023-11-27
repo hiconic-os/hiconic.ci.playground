@@ -12,6 +12,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Test Step
-        run: echo ${{ inputs.text }}
-    
+        run: |
+          echo '${{ github.event_name }}'
+
+          if [ 'pull_request' == 'pull_request' ]; then
+            echo 'PR'
+          else
+            echo 'NON PR'
+          fi
+
+          if [ '${{ github.event_name }}' == 'workflow_dispatch' ]; then
+            echo 'GITHUB_DISPATCH'
+          else
+            echo 'SOMETHING_ELSE'
+          fi
+
       
