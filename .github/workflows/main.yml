@@ -6,12 +6,16 @@ on:
       text:
         type: string
         default: 'Hello World!'
+      env:
+        type: environment
 
 jobs:
   test:
     runs-on: ubuntu-latest
     steps:
       - name: Test Step
-        run: echo ${{ inputs.text }}
+        run: |
+          echo ${{ inputs.text }}
+          echo ${{ inputs.env }}
     
       
