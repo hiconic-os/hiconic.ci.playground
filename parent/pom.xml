@@ -7,6 +7,7 @@
 	<properties>
 		<java.version>21</java.version>
 		<V.hiconic.ci.playground>[1.0,1.1)</V.hiconic.ci.playground>
-		<V.com.braintribe.testing>[2.0,2.1)</V.com.braintribe.testing>
+     	<V.junit>4.13.2</V.junit>
+        <V.org.assertj>3.24.2</V.org.assertj>
 	</properties>
 </project>
