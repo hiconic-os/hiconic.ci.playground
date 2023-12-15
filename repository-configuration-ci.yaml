@@ -8,39 +8,20 @@
     cachable: false,
   },
 
-#  uploadRepository: &upload-repo !com.braintribe.devrock.model.repository.MavenFileSystemRepository {
-#    name: "upload",
-#    rootPath: "${config.dir}/../upload",
-#    cachable: false,
-#  },
-
-  uploadRepository: &upload-repo  !com.braintribe.devrock.model.repository.MavenHttpRepository {
+  uploadRepository: &hiconic-dev  !com.braintribe.devrock.model.repository.IndexedMavenHttpRepository {
     name: "hiconic-dev", 
-    url: "https://maven.pkg.github.com/hiconic-os/maven-test", 
+    url: "https://maven.pkg.github.com/hiconic-os/maven-repo-dev", 
     user: "${env.DEVROCK_PIPELINE_UPLOAD_USER}",
     password: "${env.DEVROCK_PIPELINE_UPLOAD_PASSWORD}",
-    restSupport: none,
+    dominanceFilter: !com.braintribe.devrock.model.repository.filters.AllMatchingArtifactFilter {},
   },
 
   repositories: [
     *install-repo,
-    !com.braintribe.devrock.model.repository.MavenHttpRepository {
-      name: "devrock", 
-      url: "https://artifactory.braintribe.com/artifactory/devrock/", 
-      user: "${env.OPENTF_REPO_USER}",
-      password: "${env.OPENTF_REPO_PASSWORD}",
-    },
+    *hiconic-dev,
     !com.braintribe.devrock.model.repository.MavenHttpRepository {
       name: "third-party", 
-      url: "https://artifactory.braintribe.com/artifactory/third-party/", 
-      user: "${env.OPENTF_REPO_USER}",
-      password: "${env.OPENTF_REPO_PASSWORD}",
-    },
-    !com.braintribe.devrock.model.repository.MavenHttpRepository {
-      name: "core-dev", 
-      url: "https://artifactory.braintribe.com/artifactory/core-dev/", 
-      user: "${env.OPENTF_REPO_USER}",
-      password: "${env.OPENTF_REPO_PASSWORD}",
+      url: "https://repo1.maven.org/maven2/",
     },
   ]
 }
