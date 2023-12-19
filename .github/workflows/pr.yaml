@@ -5,5 +5,5 @@ on:
 
 jobs:
   run:
-    uses: hiconic-os/hiconic.ci.workflows/.github/workflows/pr.yaml@main
+    uses: hiconic-os/hiconic.ci.workflows/.github/workflows/pr.yaml@test
     secrets: inherit

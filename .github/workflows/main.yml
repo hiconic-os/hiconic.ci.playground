@@ -17,5 +17,9 @@ jobs:
         run: |
           echo ${{ inputs.text }}
           echo ${{ inputs.env }}
+      - name: Fail On Purpose
+        run: |
+          echo "I want to fail on purpose man!"
+          exit 1
     
       
